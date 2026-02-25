@@ -13,4 +13,4 @@ class Genius:
         self.access_token = access_token
 
     # Exercise 2
-    
+    def get_artist(self, search_term):
