@@ -109,7 +109,3 @@ class Genius:
 
         # Return the dataframe
         return df
-       
-# testing
-g = Genius(ACCESS_TOKEN)
-print(g.get_artists(['Radiohead', 'The Beatles', 'Rolling in the Deep']))
