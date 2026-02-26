@@ -1,7 +1,10 @@
 import os
-from dotenv import load_dotenv
+import pandas as pd
 import requests
+from dotenv import load_dotenv
 
+
+# Load environment variables to get access token, just used for testing
 load_dotenv()
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 
@@ -73,9 +76,40 @@ class Genius:
         # Return the json data
         return response.json()['response']['artist']
 
-    def get_artists(self, search_term):
-        pass
+    def get_artists(self, search_terms):
+        """ Returns some basic information for each artist searched for.
+
+        Args:
+            search_terms (list(str)): a list of search terms 
+
+        Returns:
+            pandas.DataFrame: the search term, artist name, artist id, and 
+            follower count for each artist 
+        """
+
+        # Create a dataframe to return
+        df = pd.DataFrame(columns=['search_term', 'artist_name', 'artist_id', 'followers_count'])
+
+        # Search for the artist data for each search term
+        for term in search_terms:
+            # Get the data for each artist
+            artist_data = self.get_artist(term)
+
+            # Create the row we want to add to the dataframe using the 
+            # data from the artist
+            row = {
+                'search_term': term,
+                'artist_name': artist_data['name'],
+                'artist_id': artist_data['id'],
+                'followers_count': artist_data['followers_count']
+            }
+
+            # Add the row to the dataframe
+            df = pd.concat([df, pd.DataFrame([row])])
+
+        # Return the dataframe
+        return df
        
 # testing
 g = Genius(ACCESS_TOKEN)
-print(g.get_artist('Radiohead'))
+print(g.get_artists(['Radiohead', 'The Beatles', 'Rolling in the Deep']))
