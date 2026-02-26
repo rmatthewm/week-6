@@ -1,12 +1,6 @@
 import os
 import pandas as pd
 import requests
-from dotenv import load_dotenv
-
-
-# Load environment variables to get access token, just used for testing
-load_dotenv()
-ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 
 
 class Genius:

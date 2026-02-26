@@ -31,6 +31,9 @@ cython_debug/
 .vscode/
 temp.json
 
+# the output from the artist_data_collector script
+artist_data.csv
+
 # environment (ignore one, use the other)
 # environment.yml
 requirements.txt
