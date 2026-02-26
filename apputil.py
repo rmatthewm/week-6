@@ -9,18 +9,19 @@ ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 # Exercise 1
 class Genius:
     def __init__(self, access_token):
-        # store the token so other methods can use it
+        # Store the token so other methods can use it
         self.access_token = access_token
+        
+        # Base url of the Genius API
+        self.base_url = 'http://api.genius.com'
 
     # Exercise 2
     def get_artist(self, search_term):
-        # Base url
-        base_url = 'http://api.genius.com'
         # Make a search query
-        genius_search_url = f"{base_url}/search?q={search_term}"
+        genius_search_url = f"{self.base_url}/search?q={search_term}"
 
         response = requests.get(genius_search_url, 
-            headers={"Authorization": "Bearer " + ACCESS_TOKEN})
+            headers={"Authorization": "Bearer " + self.access_token})
 
         json_data = response.json()
 
@@ -34,14 +35,13 @@ class Genius:
         artist_id = first_result['result']['primary_artist']['id']
 
         # Make another query for the artist info
-        genius_artist_url = f"{base_url}/artists/{artist_id}"
+        genius_artist_url = f"{self.base_url}/artists/{artist_id}"
         response = requests.get(genius_artist_url, 
-            headers={"Authorization": "Bearer " + ACCESS_TOKEN})
+            headers={"Authorization": "Bearer " + self.access_token})
 
         # Return the json data
-        return response.json()
-
+        return response.json()['response']['artist']
 
 # testing
 g = Genius(ACCESS_TOKEN)
-print(g.get_artist('Katy Perry')['response']['artist']['name'])
+print(g.get_artist('Radiohead'))
