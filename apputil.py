@@ -27,22 +27,28 @@ class Genius:
         Returns:
             int: the artist id, or None if no artist is found
         """
-        # Make a search query to find the songs with the desired artist 
-        search_url = f"{self.__base_url}/search?q={search_term}"
-        response = requests.get(search_url, 
-            headers={"Authorization": "Bearer " + self.__access_token})
+        try:
+            # Make a search query to find the songs with the desired artist 
+            search_url = f"{self.__base_url}/search?q={search_term}"
+            response = requests.get(search_url, 
+                headers={"Authorization": "Bearer " + self.__access_token})
 
-        json_data = response.json()
+            json_data = response.json()
 
-        # If there are no results, return None
-        if len(json_data['response']['hits']) == 0:
+            # If there are no results, return None
+            if len(json_data['response']['hits']) == 0:
+                return None
+
+            # Otherwise, get the first result
+            first_result = json_data['response']['hits'][0]
+
+            # Return the artist id
+            return first_result['result']['primary_artist']['id']
+
+        # Handle any exceptions
+        except Exception as e:
+            print(f'An error occurred while retrieving artist id for "{search_term}": {e}')
             return None
-
-        # Otherwise, get the first result
-        first_result = json_data['response']['hits'][0]
-
-        # Return the artist id
-        return first_result['result']['primary_artist']['id']
 
 
     def get_artist(self, search_term):
@@ -58,17 +64,23 @@ class Genius:
         # Get the artist id
         artist_id = self.get_artist_id(search_term)
         
-        # If there are no results, return an empty dictionary
+        # If there are no results, return None 
         if artist_id is None:
-            return {}
+            return None
 
         # Make another query to get the artist info
-        artist_url = f"{self.__base_url}/artists/{artist_id}"
-        response = requests.get(artist_url, 
-            headers={"Authorization": "Bearer " + self.__access_token})
+        try:
+            artist_url = f"{self.__base_url}/artists/{artist_id}"
+            response = requests.get(artist_url, 
+                headers={"Authorization": "Bearer " + self.__access_token})
 
-        # Return the json data
-        return response.json()['response']['artist']
+            # Return the json data
+            return response.json()['response']['artist']
+        
+        # Handle any exceptions
+        except Exception as e:
+            print(f'An error occurred while retrieving artist data for "{search_term}" (id:{artist_id}): {e}')
+            return None
 
     def get_artists(self, search_terms):
         """ Returns some basic information for each artist searched for.
@@ -89,14 +101,24 @@ class Genius:
             # Get the data for each artist
             artist_data = self.get_artist(term)
 
-            # Create the row we want to add to the dataframe using the 
-            # data from the artist
-            row = {
-                'search_term': term,
-                'artist_name': artist_data['name'],
-                'artist_id': artist_data['id'],
-                'followers_count': artist_data['followers_count']
-            }
+            # If there are no results, we will create a no result entry
+            if artist_data is None:
+                row = {
+                    'search_term': term,
+                    'artist_name': 'no result',
+                    'artist_id': 'no result',
+                    'followers_count': 'no result'
+                }
+
+            else:
+                # Create the row we want to add to the dataframe using the 
+                # data from the artist
+                row = {
+                    'search_term': term,
+                    'artist_name': artist_data['name'],
+                    'artist_id': artist_data['id'],
+                    'followers_count': artist_data['followers_count']
+                }
 
             # Add the row to the dataframe
             df = pd.concat([df, pd.DataFrame([row])])
