@@ -1,7 +1,9 @@
 import os
+import pandas as pd
 from dotenv import load_dotenv
 from joblib import Parallel, delayed
 from apputil import Genius
+
 
 # Get the access token from the environment variables
 load_dotenv()
@@ -23,20 +25,18 @@ def main():
     batch_size = len(artist_search_terms) // thread_count
 
     # Get the data for each artist in parallel
-    # artist_data_para = Parallel(n_jobs=thread_count)(
-    #     # For the last thread, include all that's left to avoid missing
-    #     # artists or exceeding the list length
-    #     delayed(genius.get_artists)(artist_search_terms[batch_size*i:]) 
-    #         if i == thread_count - 1 else delayed(genius.get_artists)
-    #         (artist_search_terms[i*batch_size:(i+1)*batch_size])
-    #         for i in range(thread_count)
-    # )
+    artist_data_para = Parallel(n_jobs=thread_count)(
+        # For the last thread, include all that's left to avoid missing
+        # artists or exceeding the list length
+        delayed(genius.get_artists)(artist_search_terms[batch_size*i:]) 
+            if i == thread_count - 1 else delayed(genius.get_artists)
+            (artist_search_terms[i*batch_size:(i+1)*batch_size])
+            for i in range(thread_count)
+    )
 
-    artist_data_para = genius.get_artists(artist_search_terms[0:10])
-
-    print(artist_data_para)
-
-    #artist_data.to_csv('artist_data.csv', index=False)
+    # Combine the data into a single dataframe
+    artist_data = pd.concat(artist_data_para, ignore_index=True)
+    artist_data.to_csv('artist_data.csv', index=False)
 
 
 if __name__ == "__main__":
