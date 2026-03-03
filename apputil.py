@@ -13,7 +13,7 @@ class Genius:
             access_token (str): the access token 
         """
         # The access toke to use
-        self.__access_token = access_token
+        self.access_token = access_token
         
         # Base url of the Genius API
         self.__base_url = 'http://api.genius.com'
@@ -31,7 +31,7 @@ class Genius:
             # Make a search query to find the songs with the desired artist 
             search_url = f"{self.__base_url}/search?q={search_term}"
             response = requests.get(search_url, 
-                headers={"Authorization": "Bearer " + self.__access_token})
+                headers={"Authorization": "Bearer " + self.access_token})
 
             json_data = response.json()
 
@@ -72,7 +72,7 @@ class Genius:
         try:
             artist_url = f"{self.__base_url}/artists/{artist_id}"
             response = requests.get(artist_url, 
-                headers={"Authorization": "Bearer " + self.__access_token})
+                headers={"Authorization": "Bearer " + self.access_token})
 
             # Return the json data
             return response.json()['response']['artist']
