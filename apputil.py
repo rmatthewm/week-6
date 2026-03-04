@@ -29,7 +29,18 @@ class Genius:
             if not hits:
                 return None
 
-            return hits[0]["result"]["primary_artist"]["id"]
+            # Examine the first hit
+            hit = hits[0]
+            hit_type = hit.get("type")
+            result = hit.get("result", {})
+
+            if hit_type == "artist":
+                return result.get("id")
+            elif hit_type == "song":
+                return result.get("primary_artist", {}).get("id")
+            else:
+                # Fallback for unknown types: try primary_artist first, then direct id
+                return result.get("primary_artist", {}).get("id") or result.get("id")
 
         except Exception:
             return None
